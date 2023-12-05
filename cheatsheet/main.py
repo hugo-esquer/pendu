@@ -12,7 +12,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # font
-LETTER_FONT = pygame.font.SysFont("comicsans", 40)
+LETTER_FONT = pygame.font.SysFont("bell", 40)
 
 # load letter
 LETTER_WIDTH = 40
@@ -61,7 +61,7 @@ def draw():
             win.blit(text, (x, y))
 
     # draw images
-    win.blit(images[hangman_statuts], (150, 100))
+    win.blit(images[hangman_statuts], (400, 5))
 
     #draw Word
     display_word = ""
@@ -71,7 +71,7 @@ def draw():
         else:
             display_word += "_ "
     text = LETTER_FONT.render(display_word, 1, BLACK)
-    win.blit(text, (450, 150))
+    win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2))
 
     pygame.display.update()
 
