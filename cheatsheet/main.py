@@ -1,5 +1,7 @@
 import pygame
 import random
+import pygame_menu
+from pygame_menu import themes
 
 # setup display
 pygame.init()
@@ -12,7 +14,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # font
-LETTER_FONT = pygame.font.SysFont("bell", 40)
+LETTER_FONT = pygame.font.SysFont("lucidaconsole", 40)
 
 # load letter
 LETTER_WIDTH = 40
@@ -44,10 +46,6 @@ hangman_statuts = 0
 word = random_word("mots.txt")
 guessed = []
 
-# setup game loop
-FPS = 60
-clock = pygame.time.Clock()
-run = True
 
 # fonctions
 def draw():
@@ -75,37 +73,87 @@ def draw():
 
     pygame.display.update()
 
+def display_win_loose(message):
+    pygame.time.delay(500)
+    win.fill(WHITE)
+    text = LETTER_FONT.render(message, 1, BLACK)
+    win.blit(text, (WIDTH / 2 - text.get_width()/2, HEIGHT / 2 - text.get_height() / 2))
+    pygame.display.update()
+    pygame.time.delay(3000)
 
-while run:
-    clock.tick(FPS)
 
-    draw()
+def main_game():
+    global hangman_statuts
 
-    key = 0
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.KEYDOWN:
-            key = pygame.key.name(event.key).upper()
-            guessed += [key]
-            if key not in word:
-                hangman_statuts +=1
-        for letter in letters:
-            if key == letter[2]:
-                letter[3] = False
+    FPS = 60
+    clock = pygame.time.Clock()
+    run = True
 
-    won = True
-    for letter in word:
-        if letter not in guessed:
-            won = False
+    while run:
+        clock.tick(FPS)
+
+        key = 0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            
+            if event.type == pygame.KEYDOWN:
+                key = pygame.key.name(event.key).upper()
+                guessed.append(key)
+                if key not in word:
+                    hangman_statuts +=1
+            for letter in letters:
+                if key == letter[2]:
+                    letter[3] = False
+
+        draw()
+
+        won = True
+        for letter in word:
+            if letter not in guessed:
+                won = False
+                break
+
+        if won:
+            display_win_loose("Bravo, tu a trouvé!")
+            break
+        
+        if hangman_statuts == 6:
+            display_win_loose("Dommage")
             break
 
-    if won:
-        print("won")
-        break
-    
-    if hangman_statuts == 6:
-        print("loose!")
-        break
+
+def set_difficulty(value, difficulty):
+    print(value)
+    print(difficulty)
+
+def add_word():
+    pass
+
+def level_menu():
+    mainmenu._open(level)
+
+mainmenu = pygame_menu.Menu("Bienvenue", WIDTH, HEIGHT, theme=themes.THEME_BLUE)
+mainmenu.add.text_input("Nom: ", default="Prenom", maxchar=20, repeat_keys = False)
+mainmenu.add.button("Jouer", main_game)
+mainmenu.add.button("Ajouter un mot", add_word)
+mainmenu.add.button("Difficulté", level_menu)
+mainmenu.add.button("Quitter", pygame_menu.events.EXIT)
+
+level = pygame_menu.Menu("Choix de la difficulté", WIDTH, HEIGHT, theme=themes.THEME_BLUE)
+level.add.selector("Difficulté: ", [("Difficile", 1), ("Moyen", 2), ("Facile", 3)], onchange=set_difficulty)
+
+running = True
+while running:
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            running = False
+
+        if mainmenu.is_enabled():
+            mainmenu.mainloop(win)
+        
+        pygame.display.update()
+        clock.tick(60)
 
 pygame.quit()

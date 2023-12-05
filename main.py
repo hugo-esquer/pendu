@@ -11,6 +11,8 @@ clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Menu principal")
+
+
 def set_difficulty(value, difficulty):
     print(value)
     print(difficulty)
@@ -49,6 +51,5 @@ while running:
         
         pygame.display.update()
         clock.tick(60)
-
 
 pygame.quit()
