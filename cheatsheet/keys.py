@@ -17,6 +17,6 @@ while run:
             run = False
         if event.type == pygame.KEYDOWN:
             key = pygame.key.name(event.key)
-            print(key)
+            print(key.upper())
 
 pygame.quit()
