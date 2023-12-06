@@ -86,7 +86,6 @@ def main_game():
     global hangman_statuts
 
     FPS = 60
-    clock = pygame.time.Clock()
     run = True
 
     while run:
@@ -121,14 +120,21 @@ def main_game():
         if hangman_statuts == 6:
             display_win_loose("Dommage")
             break
+    pygame.quit()
 
-
+def add_word(word):
+    with open('mots.txt', "a") as f:
+        f.write("\n" + word.upper())
+    text = LETTER_FONT.render(f"{word} a été ajouté", 1, BLACK)
+    win.blit(text, (WIDTH / 2 - text.get_width()/2, (HEIGHT / 3) * 2 - text.get_height() / 2))
+    pygame.time.delay(1500)
+    
 def set_difficulty(value, difficulty):
     print(value)
     print(difficulty)
 
-def add_word():
-    pass
+def new_word_menu():
+    mainmenu._open(new_word)
 
 def level_menu():
     mainmenu._open(level)
@@ -136,17 +142,21 @@ def level_menu():
 mainmenu = pygame_menu.Menu("Bienvenue", WIDTH, HEIGHT, theme=themes.THEME_BLUE)
 mainmenu.add.text_input("Nom: ", default="Prenom", maxchar=20, repeat_keys = False)
 mainmenu.add.button("Jouer", main_game)
-mainmenu.add.button("Ajouter un mot", add_word)
+mainmenu.add.button("Ajouter un mot", new_word_menu)
 mainmenu.add.button("Difficulté", level_menu)
 mainmenu.add.button("Quitter", pygame_menu.events.EXIT)
 
 level = pygame_menu.Menu("Choix de la difficulté", WIDTH, HEIGHT, theme=themes.THEME_BLUE)
 level.add.selector("Difficulté: ", [("Difficile", 1), ("Moyen", 2), ("Facile", 3)], onchange=set_difficulty)
 
+new_word = pygame_menu.Menu("Ajouter un mot: ", WIDTH, HEIGHT, theme=themes.THEME_BLUE)
+new_word.add.text_input("nouveau mot : ", default="", onreturn = add_word)
+
+
 running = True
 while running:
-    events = pygame.event.get()
-    for event in events:
+    clock = pygame.time.Clock()
+    for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
