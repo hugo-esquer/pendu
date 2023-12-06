@@ -45,7 +45,21 @@ def random_word(file):
 hangman_statuts = 0
 word = random_word("mots.txt")
 guessed = []
+score = 0
 
+def reset():
+    global hangman_statuts
+    global word
+    global guessed
+
+    hangman_statuts = 0
+    word = None
+    guessed = []
+    word = random_word("mots.txt")
+    for i in range(26):
+        x = startx + ((LETTER_WIDTH + GAP) * (i % 13))
+        y = starty + ((i // 13) * (GAP + LETTER_WIDTH))
+        letters.append([x, y, chr(A + i), True])
 
 # fonctions
 def draw():
@@ -94,7 +108,12 @@ def main_game():
         key = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    reset()
+                    return
             
             if event.type == pygame.KEYDOWN:
                 key = pygame.key.name(event.key).upper()
@@ -114,19 +133,20 @@ def main_game():
                 break
 
         if won:
-            display_win_loose("Bravo, tu a trouvé!")
-            break
+            display_win_loose("Bravo, tu as trouvé!")
+            reset()
         
         if hangman_statuts == 6:
             display_win_loose("Dommage")
+            reset()
             break
-    pygame.quit()
 
 def add_word(word):
     with open('mots.txt', "a") as f:
         f.write("\n" + word.upper())
     text = LETTER_FONT.render(f"{word} a été ajouté", 1, BLACK)
     win.blit(text, (WIDTH / 2 - text.get_width()/2, (HEIGHT / 3) * 2 - text.get_height() / 2))
+    pygame.display.update()
     pygame.time.delay(1500)
     
 def set_difficulty(value, difficulty):
