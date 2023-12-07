@@ -15,6 +15,7 @@ BLACK = (0, 0, 0)
 
 # font
 LETTER_FONT = pygame.font.SysFont("lucidaconsole", 40)
+SCORE_FONT = pygame.font.SysFont("lucidaconsole", 20)
 
 # load letter
 LETTER_WIDTH = 40
@@ -46,6 +47,7 @@ hangman_statuts = 0
 word = random_word("mots.txt")
 guessed = []
 score = 0
+name = ""
 
 def reset():
     global hangman_statuts
@@ -85,6 +87,10 @@ def draw():
     text = LETTER_FONT.render(display_word, 1, BLACK)
     win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2))
 
+    #draw score
+    text = SCORE_FONT.render(f"{name} score : {score}", 1, BLACK)
+    win.blit(text, (20, 20))
+
     pygame.display.update()
 
 def display_win_loose(message):
@@ -97,8 +103,7 @@ def display_win_loose(message):
 
 
 def main_game():
-    global hangman_statuts
-
+    global hangman_statuts, score
     FPS = 60
     run = True
 
@@ -117,9 +122,10 @@ def main_game():
             
             if event.type == pygame.KEYDOWN:
                 key = pygame.key.name(event.key).upper()
-                guessed.append(key)
-                if key not in word:
-                    hangman_statuts +=1
+                if key not in guessed:
+                    guessed.append(key)
+                    if key not in word:
+                            hangman_statuts +=1
             for letter in letters:
                 if key == letter[2]:
                     letter[3] = False
@@ -134,12 +140,17 @@ def main_game():
 
         if won:
             display_win_loose("Bravo, tu as trouvé!")
+            score +=1
             reset()
         
         if hangman_statuts == 6:
             display_win_loose("Dommage")
             reset()
+            score = 0
             break
+def get_name(player_name):
+    global name
+    name = player_name
 
 def add_word(word):
     with open('mots.txt', "a") as f:
@@ -147,6 +158,8 @@ def add_word(word):
     text = LETTER_FONT.render(f"{word} a été ajouté", 1, BLACK)
     win.blit(text, (WIDTH / 2 - text.get_width()/2, (HEIGHT / 3) * 2 - text.get_height() / 2))
     pygame.display.update()
+    new_word.clear()
+    new_word.add.text_input("nouveau mot : ", default="", onreturn = add_word)
     pygame.time.delay(1500)
     
 def set_difficulty(value, difficulty):
@@ -160,7 +173,7 @@ def level_menu():
     mainmenu._open(level)
 
 mainmenu = pygame_menu.Menu("Bienvenue", WIDTH, HEIGHT, theme=themes.THEME_BLUE)
-mainmenu.add.text_input("Nom: ", default="Prenom", maxchar=20, repeat_keys = False)
+mainmenu.add.text_input("Nom: ", default="Prenom", maxchar=20, repeat_keys = False, onchange= get_name)
 mainmenu.add.button("Jouer", main_game)
 mainmenu.add.button("Ajouter un mot", new_word_menu)
 mainmenu.add.button("Difficulté", level_menu)
