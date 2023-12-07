@@ -48,6 +48,7 @@ word = random_word("mots.txt")
 guessed = []
 score = 0
 name = ""
+new_score = {name: score}
 
 def reset():
     global hangman_statuts
@@ -101,6 +102,28 @@ def display_win_loose(message):
     pygame.display.update()
     pygame.time.delay(3000)
 
+def update_score():
+    scores = {}  # Dictionnaire pour stocker les scores
+    updated = False  # Indicateur pour savoir si le score a été mis à jour
+
+    # Lecture des scores existants et stockage dans le dictionnaire 'scores'
+    with open("scores.txt", "r") as f:
+        for line in f:
+            line = line.strip().split(":")
+            scores[line[0]] = int(line[1])
+
+    # Mise à jour du score du joueur s'il existe déjà, sinon ajout d'un nouveau score
+    if name in scores:
+        scores[name] = max(scores[name], score)  # Mise à jour avec le score le plus élevé
+        updated = True
+
+    if not updated:  # Si le score n'a pas été mis à jour, ajouter un nouveau score
+        scores[name] = score
+
+    # Écriture des scores mis à jour dans le fichier
+    with open("scores.txt", "w") as f:
+        for key, value in scores.items():
+            f.write(f"{key}:{value}\n")
 
 def main_game():
     global hangman_statuts, score
@@ -146,6 +169,7 @@ def main_game():
         if hangman_statuts == 6:
             display_win_loose("Dommage")
             reset()
+            update_score()
             score = 0
             break
 def get_name(player_name):
