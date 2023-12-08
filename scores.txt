@@ -1,0 +1,3 @@
+Hugo:6
+Tom:0
+Erika:4
